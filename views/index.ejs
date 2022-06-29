@@ -8,12 +8,18 @@
     <link rel="stylesheet" type="text/css" href="../styles.css">
 </head>
 <body>
+    <% if (locals.fileLink != null) { %> 
+        <div class="link">
+            Your file is uploaded
+            <a href="<%= locals.fileLink %>"><%= locals.fileLink %></a>
+        </div>
+    <% } %>
     <form action="/upload" method="POST" enctype="multipart/form-data">
         <label for="file">File:</label>
         <input type="file" id="file" name="file" required/>
         <label for="password">Password:</label>
         <input type="password" id="password" name="password"/>
-        <button type="submit" style="grid-column: span 2;">Share</button>
+        <button type="submit">Share</button>
     </form>
 </body>
 </html>

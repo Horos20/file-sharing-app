@@ -6,6 +6,7 @@ const File = require("./models/File")
 
 const express = require("express")
 const app = express()
+app.use(express.urlencoded( {extended: true }))
 
 const upload = (multer({ dest: "uploads" }))
 
@@ -43,7 +44,41 @@ app.post("/upload", upload.single("file"), async (req, res) => {
     }
 
     const file = await File.create(fileData)
-    res.send(file.originalName)
+    res.render("index", { fileLink: `${req.headers.origin}/file/${file.id}` })
 })
 
-app.listen (process.env.PORT)
+app.route("/file/:id").get(handleDownload).post(handleDownload)
+
+async function handleDownload(req, res) {
+    let file;
+    if (mongoose.Types.ObjectId.isValid(req.params.id)) {
+        if (await File.exists({ _id: req.params.id })) {
+            file = await File.findById(req.params.id)
+        } else {
+            res.send("File does not exist")
+            return
+        }
+    } else {
+        res.send("Not a valid path")
+        return
+    }
+
+    if (file.password != null) {
+        if (req.body.password == null) {
+            res.render("password")
+            return
+        }
+        if (!(await bcrypt.compare(req.body.password, file.password))) {
+            res.render("password", { error: true })
+            return
+        }
+    }
+
+    file.downloadCount++
+    await file.save()
+
+    res.download(file.path, file.originalName)
+}
+
+const PORT = process.env.PORT || 3000
+app.listen (PORT)

@@ -5,3 +5,11 @@ form {
     max-width: 500px;
     margin: 0 auto;
 }
+
+button {
+    grid-column: span 2;
+}
+
+.link {
+    margin-bottom: 1rem;
+}
